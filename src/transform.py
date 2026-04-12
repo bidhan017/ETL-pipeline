@@ -6,6 +6,7 @@ This module handles data transformation and processing.
 
 import logging
 import pandas as pd
+from streamlit import table
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -29,17 +30,17 @@ def process_standings_data(api_data):
     # Initialize list to store processed team data
     data_list = []
 
-    # Loop through each team in the standings and extract relevant statistics
+    # Loop through each team in the standings and extract relevant statistics 
     for team_info in standings:
-        rank = team_info['rank']
+        rank = team_info['position']
         team_name = team_info['team']['name']
-        played = team_info['all']['played']
-        win = team_info['all']['win']
-        draw = team_info['all']['draw']
-        lose = team_info['all']['lose']
-        goals_for = team_info['all']['goals']['for']
-        goals_against = team_info['all']['goals']['against']
-        goals_diff = team_info['goalsDiff']
+        played = team_info['playedGames']
+        win = team_info['won']
+        draw = team_info['draw']
+        lose = team_info['lost']
+        goals_for = team_info['goalsFor']
+        goals_against = team_info['goalsAgainst']
+        goals_diff = team_info['goalDifference']
         points = team_info['points']
 
         # Append team data as a list to data_list

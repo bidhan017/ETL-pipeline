@@ -13,11 +13,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database Configuration
-DB_NAME = os.getenv("DB_NAME")
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
+MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_PORT = os.getenv("MYSQL_PORT")
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -32,11 +32,11 @@ def get_database_connection():
     """
     try:
         connection = pymysql.connect(
-            database=DB_NAME,
-            user=DB_USERNAME,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=int(DB_PORT)
+            database=MYSQL_DATABASE,
+            user=MYSQL_USERNAME,
+            password=MYSQL_PASSWORD,
+            host=MYSQL_HOST,
+            port=int(MYSQL_PORT)
         )
         logger.info("Successfully connected to database")
         return connection
