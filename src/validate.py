@@ -92,5 +92,4 @@ def validate_api_response(api_data):
         raise ValueError("Standings data missing 'table' key")
 
     logger.info("API response validation passed")
-    return True</content>
-<parameter name="filePath">c:\Users\bchan\Desktop\TUD\project\python_sql_football_data_pipeline\src\validate.py
+    return True

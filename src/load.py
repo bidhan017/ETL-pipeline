@@ -180,5 +180,4 @@ def get_standings_from_db(connection):
         return df
     except Exception as e:
         logger.error(f"Failed to retrieve data from database: {e}")
-        raise</content>
-<parameter name="filePath">c:\Users\bchan\Desktop\TUD\project\python_sql_football_data_pipeline\src\load.py
+        raise

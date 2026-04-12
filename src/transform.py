@@ -60,5 +60,4 @@ def display_standings(df):
     Args:
         df (pd.DataFrame): Standings DataFrame to display
     """
-    print(df.to_string(index=False))</content>
-<parameter name="filePath">c:\Users\bchan\Desktop\TUD\project\python_sql_football_data_pipeline\src\transform.py
+    print(df.to_string(index=False))

@@ -56,5 +56,4 @@ def fetch_football_standings():
         logger.error(f'Request error occurred: {request_err}')
         raise SystemExit(1)
 
-    return api_response.json()</content>
-<parameter name="filePath">c:\Users\bchan\Desktop\TUD\project\python_sql_football_data_pipeline\src\extract.py
+    return api_response.json()
