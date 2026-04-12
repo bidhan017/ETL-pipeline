@@ -1,0 +1,9 @@
+requests
+pandas
+python-dotenv
+pymysql
+streamlit
+plotly-express
+pytest
+pytest-cov
+pytest-mock

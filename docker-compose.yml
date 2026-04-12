@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: football_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-football_data}
+      MYSQL_USER: ${DB_USERNAME:-football_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-football_pass}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - football_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: football_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-football_user}
+      PMA_PASSWORD: ${DB_PASSWORD:-football_pass}
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - football_network
+
+volumes:
+  mysql_data:
+
+networks:
+  football_network:
+    driver: bridge
