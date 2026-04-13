@@ -127,7 +127,9 @@ def create_ranked_view(connection):
     create_view_sql = """
     CREATE VIEW premier_league_standings_vw AS
     SELECT
-        @rownum := @rownum + 1 AS position,
+        ROW_NUMBER() OVER (
+            ORDER BY points DESC, goal_difference DESC, goals_for DESC
+        ) AS position,
         team,
         games_played,
         wins,
@@ -138,9 +140,7 @@ def create_ranked_view(connection):
         goal_difference,
         points
     FROM
-        premier_league_standings_tbl,
-        (SELECT @rownum := 0) r
-    ORDER BY points DESC, goal_difference DESC, goals_for DESC;
+        premier_league_standings_tbl;
     """
 
     try:
