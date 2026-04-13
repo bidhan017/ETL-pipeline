@@ -11,8 +11,6 @@ This project demonstrates a professional data engineering pipeline that:
 - Loads clean data into a MySQL database
 - Serves an interactive web dashboard for data exploration
 
-Perfect for portfolio projects, learning data engineering, or as a foundation for sports analytics applications.
-
 ## Architecture
 
 ```mermaid
