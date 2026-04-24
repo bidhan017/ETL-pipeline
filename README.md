@@ -110,7 +110,7 @@ Password: (from .env MYSQL_PASSWORD)
 mysql -u root -p football_db
 SELECT * FROM premier_league_standings_vw ORDER BY position;
 ```
-
+<!--
 ## Features
 
 ### Core Pipeline
@@ -136,6 +136,7 @@ SELECT * FROM premier_league_standings_vw ORDER BY position;
 - ✅ **Docker Support**: Docker Compose for isolated MySQL environment
 - ✅ **Environment Management**: `.env` configuration for secure credential handling
 - ✅ **Logging**: Comprehensive logging to file and console
+-->
 
 ## Detailed Setup
 
@@ -226,7 +227,7 @@ tests/test_validate.py::test_validate_api_response PASSED        [ 60%]
 tests/test_load.py::test_create_standings_table PASSED           [ 80%]
 tests/test_load.py::test_load_standings_data PASSED              [100%]
 ```
-
+<!--
 ## Docker & Containerization
 
 ### Start Services
@@ -267,6 +268,7 @@ docker-compose exec mysql mysqldump -u root -p football_db > backup.sql
 ```bash
 docker-compose down -v  # Removes volumes too
 ```
+-->
 
 ## Technology Stack
 
@@ -303,11 +305,12 @@ mysql -u root -p football_db
 
 # View logs
 tail -f football_table_standings.log
-
+<!--
 # Docker management
 docker-compose up -d
 docker-compose down
 docker-compose logs -f
+-->
 ```
 
 ## Resources & References
