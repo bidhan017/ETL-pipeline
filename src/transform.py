@@ -1,9 +1,3 @@
-"""
-Transform Module
-
-This module handles data transformation and processing.
-"""
-
 import logging
 import pandas as pd
 from streamlit import table
@@ -12,6 +6,38 @@ from streamlit import table
 logger = logging.getLogger(__name__)
 
 
+def process_standings_data(api_data, matches_data):
+    logger.info("Processing standings data")
+
+    standings = api_data['standings'][0]['table']
+    form_map = build_team_form_map(matches_data)
+
+    data_list = []
+
+    for team_info in standings:
+        team_id = team_info['team']['id']
+
+        form = form_map.get(team_id, None)
+
+        data_list.append([
+            team_info['position'],
+            team_info['team']['name'],
+            team_info['playedGames'],
+            team_info['won'],
+            team_info['draw'],
+            team_info['lost'],
+            team_info['goalsFor'],
+            team_info['goalsAgainst'],
+            team_info['goalDifference'],
+            team_info['points'],
+            form
+        ])
+
+    columns = ['P','Team','GP','W','D','L','F','A','GD','Pts','Form']
+
+    return pd.DataFrame(data_list, columns=columns)
+
+'''
 def process_standings_data(api_data):
     """
     Process raw API data into a clean pandas DataFrame.
@@ -52,7 +78,7 @@ def process_standings_data(api_data):
 
     logger.info(f"Processed {len(standings_df)} teams' data")
     return standings_df
-
+'''
 
 def display_standings(df):
     """
@@ -62,3 +88,69 @@ def display_standings(df):
         df (pd.DataFrame): Standings DataFrame to display
     """
     print(df.to_string(index=False))
+
+def compute_form(matches_data, team_id):
+    """
+    Convert match results into form string (e.g., WWDLW)
+    """
+    if not matches_data:
+        return None
+
+    form = []
+
+    for match in matches_data.get("matches", []):
+        home_id = match['homeTeam']['id']
+        away_id = match['awayTeam']['id']
+        score = match['score']['fullTime']
+
+        if score['home'] > score['away']:
+            result = 'W' if home_id == team_id else 'L'
+        elif score['home'] < score['away']:
+            result = 'L' if home_id == team_id else 'W'
+        else:
+            result = 'D'
+
+        form.append(result)
+
+    return "".join(form)
+
+def build_team_form_map(matches_data):
+    """
+    Returns: {team_id: "WWDLW"}
+    """
+
+    form_map = {}
+
+    for match in matches_data.get("matches", []):
+        home = match["homeTeam"]["id"]
+        away = match["awayTeam"]["id"]
+        score = match["score"]["fullTime"]
+
+        if score["home"] is None:
+            continue
+
+        if score["home"] > score["away"]:
+            winner = home
+            loser = away
+        elif score["home"] < score["away"]:
+            winner = away
+            loser = home
+        else:
+            winner = loser = None
+
+        for team_id in [home, away]:
+            if team_id not in form_map:
+                form_map[team_id] = []
+
+        if winner:
+            form_map[winner].append("W")
+            form_map[loser].append("L")
+        else:
+            form_map[home].append("D")
+            form_map[away].append("D")
+
+    # keep last 5 only
+    return {
+        team: "".join(results[-5:])
+        for team, results in form_map.items()
+    }

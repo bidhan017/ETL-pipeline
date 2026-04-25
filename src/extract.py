@@ -1,9 +1,3 @@
-"""
-Extract Module
-
-This module handles data extraction from external APIs.
-"""
-
 import os
 import logging
 import requests
@@ -31,8 +25,10 @@ def fetch_football_standings():
     Raises:
         SystemExit: If API request fails
     """
+
     # API Request Configuration
     url = f"https://api.football-data.org/v4/competitions/{LEAGUE_CODE}/standings"
+   
     headers = {"X-Auth-Token": API_KEY}
     query_string = {}
 
@@ -57,3 +53,47 @@ def fetch_football_standings():
         raise SystemExit(1)
 
     return api_response.json()
+
+def fetch_team_last_matches(team_id, limit=5):
+    """
+    Fetch last N finished matches for a given team.
+
+    Args:
+        team_id (int): Team ID from API
+        limit (int): Number of matches (default 5)
+
+    Returns:
+        dict: JSON response with match data
+    """
+
+    url = f"https://api.football-data.org/v4/teams/{team_id}/matches"
+    headers = {"X-Auth-Token": API_KEY}
+    params = {
+        "status": "FINISHED",
+        "limit": limit
+    }
+
+    logger.info(f"Fetching last {limit} matches for team {team_id}")
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=15)
+        response.raise_for_status()
+        return response.json()
+
+    except (HTTPError, Timeout, RequestException) as e:
+        logger.error(f"Error fetching matches for team {team_id}: {e}")
+        return None  # don’t kill whole pipeline
+    
+def fetch_all_recent_matches(LEAGUE_CODE):
+    url = f"https://api.football-data.org/v4/competitions/{LEAGUE_CODE}/matches"
+
+    headers = {"X-Auth-Token": API_KEY}
+    params = {
+        "status": "FINISHED"
+    }
+
+    response = requests.get(url, headers=headers, params=params, timeout=15)
+    response.raise_for_status()
+
+    return response.json()
+
