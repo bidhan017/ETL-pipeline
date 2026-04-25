@@ -285,6 +285,17 @@ docker-compose down -v  # Removes volumes too
 | **Environment** | python-dotenv | Latest |
 | **Containerization** | Docker & Compose | Latest |
 
+## CI/CD & AI Review
+
+- **Automated CI/CD**: All pushes and pull requests trigger GitHub Actions workflows for linting (ruff), unit tests (pytest + coverage), and coverage upload (Codecov).
+- **AI Code Review**: After tests pass, an AI review job runs using Ollama and the deepseek-coder model. It reviews code diffs for bugs, bad practices, and data pipeline issues. See `.github/workflows/cicd.yml` and `ai_review.py` for details.
+- **How it works:**
+  1. **validate**: Lint code with ruff
+  2. **test**: Run all tests with coverage
+  3. **ai-review**: Run AI review on code changes (pulls deepseek-coder model, reviews with `ai_review.py`)
+
+**Status:** All tests and reviews must pass for PRs to main.
+
 ## Common Commands
 
 ```bash
