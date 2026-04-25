@@ -2,11 +2,9 @@
 Streamlit App for Premier League Dashboard
 """
 
-import os
 import sys
 from pathlib import Path
 
-import pandas as pd
 import plotly.express as px
 import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx

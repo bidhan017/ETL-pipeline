@@ -5,7 +5,6 @@ This module handles data validation and quality checks.
 """
 
 import logging
-import pandas as pd
 
 # Get logger
 logger = logging.getLogger(__name__)

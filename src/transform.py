@@ -1,6 +1,5 @@
 import logging
 import pandas as pd
-from streamlit import table
 
 # Get logger
 logger = logging.getLogger(__name__)
