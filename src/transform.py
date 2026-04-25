@@ -118,6 +118,9 @@ def build_team_form_map(matches_data):
     """
     Returns: {team_id: "WWDLW"}
     """
+    
+    if not matches_data:
+        return {}
 
     form_map = {}
 

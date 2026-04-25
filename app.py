@@ -1,7 +1,5 @@
 """
-Streamlit App for Premier League Standings
-
-This app displays Premier League standings from the MySQL database.
+Streamlit App for Premier League Dashboard
 """
 
 import os
@@ -9,7 +7,6 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from PIL import Image
 import plotly.express as px
 import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx
@@ -23,83 +20,150 @@ from load import get_database_connection, get_standings_from_db
 # Load environment variables
 load_dotenv()
 
-# Configuration
-IMAGE_FILE_PATH = os.getenv('IMAGE_FILE_PATH', 'assets/premier-league-logo.png')
 
+# ---------- HELPER FUNCTIONS ----------
+
+def format_form(form):
+    """Convert form string to colored emojis."""
+    if not form:
+        return ""
+    mapping = {"W": "🟢", "D": "🟡", "L": "🔴"}
+    return " ".join(mapping.get(x, x) for x in form)
+
+
+def highlight_positions(row):
+    """Highlight top 4 and bottom 3 teams."""
+    try:
+        pos = int(row.name)
+        if pos <= 4:
+            return ['background-color: #d4edda'] * len(row)  # green
+        elif pos >= 18:
+            return ['background-color: #f8d7da'] * len(row)  # red
+    except Exception:
+        pass
+    return [''] * len(row)
+
+
+# ---------- MAIN APP ----------
 
 def main():
-    """Main Streamlit app function."""
     st.set_page_config(
-        page_title='Premier League Standings 2025/26',
+        page_title='Premier League Dashboard',
         page_icon='⚽',
         layout='wide'
     )
 
-    connection = None
-    final_standings_df = pd.DataFrame()
+    st.title('⚽ Premier League Dashboard 2025/26')
+    st.markdown("---")
 
+    # ---------- LOAD DATA ----------
+    connection = None
     try:
         connection = get_database_connection()
-        final_standings_df = get_standings_from_db(connection)
+        df = get_standings_from_db(connection)
     except Exception as e:
         st.error(f'Failed to load standings data: {e}')
         return
     finally:
-        if connection is not None:
-            try:
-                connection.close()
-            except Exception:
-                pass
+        if connection:
+            connection.close()
 
-    if not final_standings_df.empty:
-        final_standings_df.set_index('position', inplace=True)
+    if df.empty:
+        st.info("⚠️ No standings data available. Run the pipeline first.")
+        return
 
-    try:
-        prem_league_logo_image = Image.open(IMAGE_FILE_PATH)
-    except FileNotFoundError:
-        prem_league_logo_image = None
+    # ---------- DATA CLEANING ----------
+    # Handle form safely
+    if 'form' in df.columns:
+        df['form'] = df['form'].fillna("").apply(format_form)
+    else:
+        df['form'] = ""
 
-    if prem_league_logo_image is not None:
-        col1, col2 = st.columns([4, 1])
-        col2.image(prem_league_logo_image)
+    # Rename columns for UI
+    df.rename(columns={
+        'position': 'Pos',
+        'team': 'Team',
+        'points': 'Pts',
+        'goals_for': 'GF',
+        'goals_against': 'GA',
+        'goal_difference': 'GD',
+        'games_played': 'GP',
+        'wins': 'W',
+        'draws': 'D',
+        'losses': 'L',
+        'form': 'Form'
+    }, inplace=True)
 
-    st.title('⚽🏆 Premier League Standings 2025/26 ⚽🏆')
-    st.write('')
+    df.set_index('Pos', inplace=True)
 
-    st.sidebar.title('Instructions 📖')
-    st.sidebar.write(
-        'The table showcases the current Premier League standings for the 2025/26 season. Toggle visualizations to gain deeper insights!'
+    # Ensure sorted properly
+    df = df.sort_index()
+
+    # ---------- SIDEBAR ----------
+    st.sidebar.title("⚙️ Controls")
+
+    show_chart = st.sidebar.checkbox("Show Chart", True)
+    top_n = st.sidebar.slider("Select Top Teams", 5, 20, 10)
+
+    filtered_df = df.head(top_n)
+
+    # ---------- METRICS ----------
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(
+        "🏆 Leader",
+        df.iloc[0]['Team'],
+        f"{df.iloc[0]['Pts']} pts"
     )
 
-    show_visualization = st.sidebar.radio(
-        'Would you like to view the standings as a visualization too?',
-        ('No', 'Yes')
+    col2.metric(
+        "⚽ Most Goals",
+        df.sort_values('GF', ascending=False).iloc[0]['Team']
     )
 
-    if show_visualization == 'Yes':
-        st.table(final_standings_df)
-        st.write('')
+    col3.metric(
+        "🛡️ Best Defense",
+        df.sort_values('GA').iloc[0]['Team']
+    )
+
+    st.markdown("---")
+
+    # ---------- TABLE ----------
+    st.subheader("📊 League Table")
+
+    styled_df = filtered_df.style \
+        .apply(highlight_positions, axis=1) \
+        .background_gradient(subset=['Pts'], cmap='Greens') \
+        .background_gradient(subset=['GD'], cmap='RdYlGn') \
+        .set_properties(**{'text-align': 'center'})
+
+    # Use st.write for styling support
+    st.write(styled_df)
+
+    # ---------- CHART ----------
+    if show_chart:
+        st.markdown("---")
+        st.subheader("📈 Points Comparison")
 
         fig = px.bar(
-            final_standings_df,
-            x='team',
-            y='points',
-            title='Premier League Standings 2025/26',
-            labels={
-                'points': 'Points',
-                'team': 'Team',
-                'goals_for': 'Goals Scored',
-                'goals_against': 'Goals Conceded',
-                'goal_difference': 'Goal Difference'
-            },
-            color='team',
-            height=700,
-            hover_data=['goals_for', 'goals_against', 'goal_difference']
+            filtered_df.reset_index(),
+            x='Pts',
+            y='Team',
+            orientation='h',
+            color='Pts',
+            color_continuous_scale='Viridis',
+            hover_data=['GF', 'GA', 'GD', 'Form'],
+            height=600
         )
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.table(final_standings_df)
 
+        fig.update_layout(
+            yaxis={'categoryorder': 'total ascending'}
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+
+# ---------- STREAMLIT CHECK ----------
 
 def is_running_in_streamlit() -> bool:
     try:
@@ -110,6 +174,7 @@ def is_running_in_streamlit() -> bool:
 
 if __name__ == '__main__':
     if not is_running_in_streamlit():
-        print('Please run this app with: streamlit run app.py')
+        print('Run this app using: streamlit run app.py')
         sys.exit(0)
     main()
+ 
