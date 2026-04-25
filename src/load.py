@@ -63,7 +63,8 @@ def create_standings_table(connection):
         goals_for INT,
         goals_against INT,
         goal_difference INT,
-        points INT
+        points INT,
+        form VARCHAR(10)
     );
     """
 
@@ -87,9 +88,9 @@ def load_standings_data(connection, df):
     """
     insert_sql = """
     INSERT INTO premier_league_standings_tbl (
-        position, team, games_played, wins, draws, losses, goals_for, goals_against, goal_difference, points
+        position, team, games_played, wins, draws, losses, goals_for, goals_against, goal_difference, points, form
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON DUPLICATE KEY UPDATE
     team = VALUES(team),
     games_played = VALUES(games_played),
@@ -99,7 +100,8 @@ def load_standings_data(connection, df):
     goals_for = VALUES(goals_for),
     goals_against = VALUES(goals_against),
     goal_difference = VALUES(goal_difference),
-    points = VALUES(points)
+    points = VALUES(points),
+    form = VALUES(form)
     """
 
     try:
@@ -107,7 +109,7 @@ def load_standings_data(connection, df):
             for idx, row in df.iterrows():
                 cursor.execute(insert_sql, (
                     row['P'], row['Team'], row['GP'], row['W'], row['D'],
-                    row['L'], row['F'], row['A'], row['GD'], row['Pts']
+                    row['L'], row['F'], row['A'], row['GD'], row['Pts'], row['Form']
                 ))
             connection.commit()
         logger.info(f"Loaded {len(df)} records into database")
@@ -138,7 +140,8 @@ def create_ranked_view(connection):
         goals_for,
         goals_against,
         goal_difference,
-        points
+        points,
+        form
     FROM
         premier_league_standings_tbl;
     """
@@ -169,7 +172,7 @@ def get_standings_from_db(connection):
     query = """
     SELECT
         position, team, games_played, wins, draws, losses,
-        goals_for, goals_against, goal_difference, points
+        goals_for, goals_against, goal_difference, points, form
     FROM premier_league_standings_vw
     ORDER BY position;
     """
