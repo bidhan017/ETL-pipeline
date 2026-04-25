@@ -100,7 +100,7 @@ def compute_form(matches_data, team_id):
 
     for match in matches_data.get("matches", []):
         home_id = match['homeTeam']['id']
-        away_id = match['awayTeam']['id']
+        #away_id = match['awayTeam']['id']
         score = match['score']['fullTime']
 
         if score['home'] > score['away']:
