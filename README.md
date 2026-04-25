@@ -34,9 +34,9 @@ graph TD
 ```
 python_sql_football_data_pipeline/
 ├── src/                           # Core pipeline modules
-│   ├── extract.py                # fetch_football_standings() - API data fetching
-│   ├── transform.py              # process_standings_data() - DataFrame transformation
-│   ├── validate.py               # Data quality validation functions
+│   ├── extract.py                # data extraction from external APIs
+│   ├── validate.py               # data validation and quality checks
+│   ├── transform.py              # data transformation and processing
 │   └── load.py                   # Database operations & connection handling
 │
 ├── tests/                         # Unit and integration tests (pytest)
