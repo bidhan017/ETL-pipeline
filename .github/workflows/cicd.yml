@@ -83,3 +83,21 @@ jobs:
           files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
+
+  ai-review:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Pull model
+        run: ollama pull deepseek-coder
+
+      - name: Run AI review
+        run: python ai_review.py
