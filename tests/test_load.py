@@ -10,6 +10,13 @@ from unittest.mock import patch, MagicMock, call
 # Ensure the project root is on sys.path when running this test directly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# Mock environment variables before importing src.load
+os.environ['MYSQL_DATABASE'] = 'test_db'
+os.environ['MYSQL_USERNAME'] = 'test_user'
+os.environ['MYSQL_PASSWORD'] = 'test_password'
+os.environ['MYSQL_HOST'] = 'localhost'
+os.environ['MYSQL_PORT'] = '3306'
+
 from src.load import get_database_connection, create_standings_table, load_standings_data
 
 

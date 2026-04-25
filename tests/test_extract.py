@@ -10,6 +10,10 @@ from unittest.mock import patch, MagicMock
 # Ensure the project root is on sys.path when running this test directly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# Mock environment variables before importing src.extract
+os.environ['API_KEY'] = 'test_api_key'
+os.environ['LEAGUE_CODE'] = 'PL'
+
 from src.extract import fetch_football_standings, fetch_team_last_matches, fetch_all_recent_matches
 
 
